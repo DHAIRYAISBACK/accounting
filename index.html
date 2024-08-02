@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Accounting Software</title>
+    <style>
+        #authContainer {
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        #appContainer {
+            margin: 0 auto;
+            width: 80%;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3, h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th,
+        table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        thead {
+            background-color: #f2f2f2;
+        }
+
+        #balanceSheetTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        #balanceSheetTable th,
+        #balanceSheetTable td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        #balanceSheetTable thead {
+            background-color: #f2f2f2;
+        }
+
+        #balanceSheetTable tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        #balanceSheetTable tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+
+        #reports {
+            margin-bottom: 20px;
+        }
+
+        #reports p {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+
+        .summary p {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="authContainer">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+            <button type="submit">Login</button>
+        </form>
+        <h2>Register</h2>
+        <form id="registerForm">
+            <label for="newUsername">Username:</label>
+            <input type="text" id="newUsername" required>
+            <label for="newPassword">Password:</label>
+            <input type="password" id="newPassword" required>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    <div id="appContainer" style="display:none;">
+        <div class="container">
+            <h1>Advanced Accounting Software</h1>
+
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <input type="text" id="description" name="description" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount:</label>
+                    <input type="number" id="amount" name="amount" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Type:</label>
+                    <select id="type" name="type" required>
+                        <option value="debit">Debit</option>
+                        <option value="credit">Credit</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="account">Account:</label>
+                    <select id="account" name="account" required>
+                        <option value="cash">Cash</option>
+                        <option value="accountsReceivable">Accounts Receivable</option>
+                        <option value="inventory">Inventory</option>
+                        <option value="accountsPayable">Accounts Payable</option>
+                        <option value="loans">Loans</option>
+                        <option value="ownerEquity">Owner Equity</option>
+                        <option value="sales">Sales</option>
+                        <option value="serviceRevenue">Service Revenue</option>
+                        <option value="salaryExpense">Salary Expense</option>
+                        <option value="rentExpense">Rent Expense</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="correspondingAccount">Corresponding Account (Optional):</label>
+                    <select id="correspondingAccount" name="correspondingAccount">
+                        <option value="">None</option>
+                        <option value="cash">Cash</option>
+                        <option value="accountsReceivable">Accounts Receivable</option>
+                        <option value="inventory">Inventory</option>
+                        <option value="accountsPayable">Accounts Payable</option>
+                        <option value="loans">Loans</option>
+                        <option value="ownerEquity">Owner Equity</option>
+                        <option value="sales">Sales</option>
+                        <option value="serviceRevenue">Service Revenue</option>
+                        <option value="salaryExpense">Salary Expense</option>
+                        <option value="rentExpense">Rent Expense</option>
+                    </select>
+                </div>
+
+                <button type="submit">Add Transaction</button>
+            </form>
+
+            <h2>Transactions</h2>
+            <table id="transactionsTable">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Account</th>
+                        <th>Corresponding Account</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Transactions will be dynamically inserted here -->
+                </tbody>
+            </table>
+
+            <h2>Financial Reports</h2>
+            <button onclick="generateReports()">Generate Reports</button>
+
+            <div id="reports">
+                <h3>Income Statement</h3>
+                <p>Total Revenues: <span id="reportTotalRevenues">0</span></p>
+                <p>Total Expenses: <span id="reportTotalExpenses">0</span></p>
+                <p>Net Income: <span id="reportNetIncome">0</span></p>
+
+                <h3>Balance Sheet</h3>
+                <table id="balanceSheetTable">
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cash</td>
+                            <td id="balanceSheetCash">0</td>
+                        </tr>
+                        <tr>
+                            <td>Accounts Receivable</td>
+                            <td id="balanceSheetAccountsReceivable">0</td>
+                        </tr>
+                        <tr>
+                            <td>Inventory</td>
+                            <td id="balanceSheetInventory">0</td>
+                        </tr>
+                        <tr>
+                            <td>Accounts Payable</td>
+                            <td id="balanceSheetAccountsPayable">0</td>
+                        </tr>
+                        <tr>
+                            <td>Loans</td>
+                            <td id="balanceSheetLoans">0</td>
+                        </tr>
+                        <tr>
+                            <td>Owner's Equity</td>
+                            <td id="balanceSheetOwnerEquity">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary">
+                <h3>Summary</h3>
+                <p>Total Debits: <span id="summaryTotalDebits">0</span></p>
+                <p>Total Credits: <span id="summaryTotalCredits">0</span></p>
+                <p>Difference: <span id="summaryDifference">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Handle login logic here
+            // On successful login:
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Handle registration logic here
+            // On successful registration:
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        });
+
+        const transactions = [];
+
+        document.getElementById('transactionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const account = document.getElementById('account').value;
+            const correspondingAccount = document.getElementById('correspondingAccount').value || null;
+
+            const transaction = {
+                description,
+                amount,
+                type,
+                account,
+                correspondingAccount
+            };
+
+            transactions.push(transaction);
+            updateTransactionsTable();
+            updateSummary();
+            document.getElementById('transactionForm').reset();
+        });
+
+        function updateTransactionsTable() {
+            const tableBody = document.getElementById('transactionsTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            transactions.forEach((transaction, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.description}</td>
+                    <td>${transaction.amount}</td>
+                    <td>${transaction.type}</td>
+                    <td>${transaction.account}</td>
+                    <td>${transaction.correspondingAccount || 'None'}</td>
+                    <td><button onclick="deleteTransaction(${index})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteTransaction(index) {
+            transactions.splice(index, 1);
+            updateTransactionsTable();
+            updateSummary();
+        }
+
+        function generateReports() {
+            let totalRevenues = 0;
+            let totalExpenses = 0;
+            let balanceSheet = {
+                cash: 0,
+                accountsReceivable: 0,
+                inventory: 0,
+                accountsPayable: 0,
+                loans: 0,
+                ownerEquity: 0
+            };
+
+            transactions.forEach(transaction => {
+                if (transaction.type === 'credit') {
+                    totalRevenues += transaction.amount;
+                } else if (transaction.type === 'debit') {
+                    totalExpenses += transaction.amount;
+                }
+
+                if (transaction.account in balanceSheet) {
+                    if (transaction.type === 'debit') {
+                        balanceSheet[transaction.account] += transaction.amount;
+                    } else if (transaction.type === 'credit') {
+                        balanceSheet[transaction.account] -= transaction.amount;
+                    }
+                }
+
+                if (transaction.correspondingAccount && transaction.correspondingAccount in balanceSheet) {
+                    if (transaction.type === 'credit') {
+                        balanceSheet[transaction.correspondingAccount] += transaction.amount;
+                    } else if (transaction.type === 'debit') {
+                        balanceSheet[transaction.correspondingAccount] -= transaction.amount;
+                    }
+                }
+            });
+
+            document.getElementById('reportTotalRevenues').textContent = totalRevenues.toFixed(2);
+            document.getElementById('reportTotalExpenses').textContent = totalExpenses.toFixed(2);
+            document.getElementById('reportNetIncome').textContent = (totalRevenues - totalExpenses).toFixed(2);
+
+            document.getElementById('balanceSheetCash').textContent = balanceSheet.cash.toFixed(2);
+            document.getElementById('balanceSheetAccountsReceivable').textContent = balanceSheet.accountsReceivable.toFixed(2);
+            document.getElementById('balanceSheetInventory').textContent = balanceSheet.inventory.toFixed(2);
+            document.getElementById('balanceSheetAccountsPayable').textContent = balanceSheet.accountsPayable.toFixed(2);
+            document.getElementById('balanceSheetLoans').textContent = balanceSheet.loans.toFixed(2);
+            document.getElementById('balanceSheetOwnerEquity').textContent = balanceSheet.ownerEquity.toFixed(2);
+        }
+
+        function updateSummary() {
+            let totalDebits = 0;
+            let totalCredits = 0;
+
+            transactions.forEach(transaction => {
+                if (transaction.type === 'debit') {
+                    totalDebits += transaction.amount;
+                } else if (transaction.type === 'credit') {
+                    totalCredits += transaction.amount;
+                }
+            });
+
+            const difference = totalDebits - totalCredits;
+
+            document.getElementById('summaryTotalDebits').textContent = totalDebits.toFixed(2);
+            document.getElementById('summaryTotalCredits').textContent = totalCredits.toFixed(2);
+            document.getElementById('summaryDifference').textContent = difference.toFixed(2);
+        }
+    </script>
+</body>
+</html>
