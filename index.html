@@ -32,7 +32,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2 {
+        h1,
+        h2 {
             color: #333;
             margin-bottom: 20px;
             text-align: center;
@@ -116,7 +117,8 @@
             font-size: 20px;
         }
 
-        #authContainer, #appContainer {
+        #authContainer,
+        #appContainer {
             display: none;
         }
     </style>
@@ -268,6 +270,8 @@
     </div>
 
     <script>
+        console.log("Script loaded successfully");
+
         const authContainer = document.getElementById('authContainer');
         const appContainer = document.getElementById('appContainer');
         const loginForm = document.getElementById('loginForm');
@@ -280,10 +284,13 @@
 
         const addUser = (username, password) => {
             users.push({ username, password });
+            console.log("User added:", username);
         };
 
         const authenticateUser = (username, password) => {
-            return users.some(user => user.username === username && user.password === password);
+            const isAuthenticated = users.some(user => user.username === username && user.password === password);
+            console.log("Authentication attempt for", username, isAuthenticated ? "successful" : "failed");
+            return isAuthenticated;
         };
 
         loginForm.addEventListener('submit', (e) => {
@@ -292,9 +299,11 @@
             const password = loginForm.password.value;
 
             if (authenticateUser(username, password)) {
+                console.log("Login successful");
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
             } else {
+                console.log("Invalid login credentials");
                 alert('Invalid login credentials.');
             }
         });
@@ -305,6 +314,7 @@
             const newPassword = registerForm.newPassword.value;
 
             addUser(newUsername, newPassword);
+            console.log("Registration successful for:", newUsername);
             alert('Registration successful. You can now login.');
             registerForm.reset();
         });
@@ -427,6 +437,10 @@
             document.getElementById('summaryTotalCredits').textContent = totals.totalCredits;
             document.getElementById('summaryDifference').textContent = totals.totalDebits - totals.totalCredits;
         };
+
+        console.log("Script executed successfully");
+        authContainer.style.display = 'block'; // Ensure the auth container is visible initially
+        console.log("Auth container visibility set to block");
     </script>
 </body>
 
