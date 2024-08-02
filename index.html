@@ -273,173 +273,161 @@
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
         const transactionForm = document.getElementById('transactionForm');
-        const transactionsTable = document.getElementById('transactionsTable').getElementsByTagName('tbody')[0];
-        const currentUser = localStorage.getItem('currentUser');
+        const transactionsTable = document.getElementById('transactionsTable').querySelector('tbody');
 
-        if (currentUser) {
-            showApp();
-            loadTransactions();
-        } else {
-            showAuth();
-        }
+        let users = [];
+        let transactions = [];
 
-        loginForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const user = localStorage.getItem(username);
+        const addUser = (username, password) => {
+            users.push({ username, password });
+        };
 
-            if (user && JSON.parse(user).password === password) {
-                localStorage.setItem('currentUser', username);
-                showApp();
-                loadTransactions();
+        const authenticateUser = (username, password) => {
+            return users.some(user => user.username === username && user.password === password);
+        };
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = loginForm.username.value;
+            const password = loginForm.password.value;
+
+            if (authenticateUser(username, password)) {
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
             } else {
-                alert('Invalid login credentials!');
+                alert('Invalid login credentials.');
             }
         });
 
-        registerForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const username = document.getElementById('newUsername').value;
-            const password = document.getElementById('newPassword').value;
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newUsername = registerForm.newUsername.value;
+            const newPassword = registerForm.newPassword.value;
 
-            if (localStorage.getItem(username)) {
-                alert('Username already exists!');
-            } else {
-                localStorage.setItem(username, JSON.stringify({ password, transactions: [] }));
-                localStorage.setItem('currentUser', username);
-                showApp();
-            }
+            addUser(newUsername, newPassword);
+            alert('Registration successful. You can now login.');
+            registerForm.reset();
         });
 
-        transactionForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const description = document.getElementById('description').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const type = document.getElementById('type').value;
-            const account = document.getElementById('account').value;
-            const correspondingAccount = document.getElementById('correspondingAccount').value;
+        transactionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const description = transactionForm.description.value;
+            const amount = parseFloat(transactionForm.amount.value);
+            const type = transactionForm.type.value;
+            const account = transactionForm.account.value;
+            const correspondingAccount = transactionForm.correspondingAccount.value;
 
-            const transaction = { description, amount, type, account, correspondingAccount };
-            addTransaction(transaction);
-            saveTransaction(transaction);
+            const transaction = {
+                description,
+                amount,
+                type,
+                account,
+                correspondingAccount
+            };
+
+            transactions.push(transaction);
+            addTransactionToTable(transaction);
+            transactionForm.reset();
         });
 
-        function showAuth() {
-            authContainer.style.display = 'block';
-            appContainer.style.display = 'none';
-        }
+        const addTransactionToTable = (transaction) => {
+            const row = document.createElement('tr');
 
-        function showApp() {
-            authContainer.style.display = 'none';
-            appContainer.style.display = 'block';
-        }
+            row.innerHTML = `
+                <td>${transaction.description}</td>
+                <td>${transaction.amount}</td>
+                <td>${transaction.type}</td>
+                <td>${transaction.account}</td>
+                <td>${transaction.correspondingAccount || ''}</td>
+                <td><span class="delete-icon" onclick="deleteTransaction(${transactions.length - 1})">&times;</span></td>
+            `;
 
-        function loadTransactions() {
-            const user = getCurrentUser();
-            user.transactions.forEach(transaction => addTransaction(transaction));
-        }
+            transactionsTable.appendChild(row);
+        };
 
-        function saveTransaction(transaction) {
-            const user = getCurrentUser();
-            user.transactions.push(transaction);
-            localStorage.setItem(localStorage.getItem('currentUser'), JSON.stringify(user));
-        }
+        const deleteTransaction = (index) => {
+            transactions.splice(index, 1);
+            renderTransactionsTable();
+        };
 
-        function addTransaction(transaction) {
-            const row = transactionsTable.insertRow();
-            row.insertCell(0).innerText = transaction.description;
-            row.insertCell(1).innerText = transaction.amount.toFixed(2);
-            row.insertCell(2).innerText = transaction.type;
-            row.insertCell(3).innerText = transaction.account;
-            row.insertCell(4).innerText = transaction.correspondingAccount || 'None';
-            const deleteCell = row.insertCell(5);
-            const deleteIcon = document.createElement('span');
-            deleteIcon.innerHTML = '&#10060;';
-            deleteIcon.classList.add('delete-icon');
-            deleteIcon.addEventListener('click', () => deleteTransaction(row, transaction));
-            deleteCell.appendChild(deleteIcon);
-        }
+        const renderTransactionsTable = () => {
+            transactionsTable.innerHTML = '';
+            transactions.forEach((transaction, index) => addTransactionToTable(transaction));
+        };
 
-        function deleteTransaction(row, transaction) {
-            transactionsTable.deleteRow(row.rowIndex - 1);
-            const user = getCurrentUser();
-            user.transactions = user.transactions.filter(t => t !== transaction);
-            localStorage.setItem(localStorage.getItem('currentUser'), JSON.stringify(user));
-        }
-
-        function getCurrentUser() {
-            return JSON.parse(localStorage.getItem(localStorage.getItem('currentUser')));
-        }
-
-        
-
-        function generateReports() {
-            let totalRevenues = 0;
-            let totalExpenses = 0;
-            let balanceSheet = {
+        const calculateTotals = () => {
+            const totals = {
+                revenues: 0,
+                expenses: 0,
                 cash: 0,
                 accountsReceivable: 0,
                 inventory: 0,
                 accountsPayable: 0,
                 loans: 0,
-                ownerEquity: 0
+                ownerEquity: 0,
+                totalDebits: 0,
+                totalCredits: 0,
             };
 
             transactions.forEach(transaction => {
-                if (transaction.type === 'credit') {
-                    totalRevenues += transaction.amount;
-                } else if (transaction.type === 'debit') {
-                    totalExpenses += transaction.amount;
-                }
-
-                if (transaction.account in balanceSheet) {
-                    if (transaction.type === 'debit') {
-                        balanceSheet[transaction.account] += transaction.amount;
-                    } else if (transaction.type === 'credit') {
-                        balanceSheet[transaction.account] -= transaction.amount;
-                    }
-                }
-
-                if (transaction.correspondingAccount && transaction.correspondingAccount in balanceSheet) {
-                    if (transaction.type === 'credit') {
-                        balanceSheet[transaction.correspondingAccount] += transaction.amount;
-                    } else if (transaction.type === 'debit') {
-                        balanceSheet[transaction.correspondingAccount] -= transaction.amount;
-                    }
-                }
-            });
-
-            document.getElementById('reportTotalRevenues').textContent = totalRevenues.toFixed(2);
-            document.getElementById('reportTotalExpenses').textContent = totalExpenses.toFixed(2);
-            document.getElementById('reportNetIncome').textContent = (totalRevenues - totalExpenses).toFixed(2);
-
-            document.getElementById('balanceSheetCash').textContent = balanceSheet.cash.toFixed(2);
-            document.getElementById('balanceSheetAccountsReceivable').textContent = balanceSheet.accountsReceivable.toFixed(2);
-            document.getElementById('balanceSheetInventory').textContent = balanceSheet.inventory.toFixed(2);
-            document.getElementById('balanceSheetAccountsPayable').textContent = balanceSheet.accountsPayable.toFixed(2);
-            document.getElementById('balanceSheetLoans').textContent = balanceSheet.loans.toFixed(2);
-            document.getElementById('balanceSheetOwnerEquity').textContent = balanceSheet.ownerEquity.toFixed(2);
-        }
-
-        function updateSummary() {
-            let totalDebits = 0;
-            let totalCredits = 0;
-
-            transactions.forEach(transaction => {
                 if (transaction.type === 'debit') {
-                    totalDebits += transaction.amount;
-                } else if (transaction.type === 'credit') {
-                    totalCredits += transaction.amount;
+                    totals.totalDebits += transaction.amount;
+                } else {
+                    totals.totalCredits += transaction.amount;
+                }
+
+                switch (transaction.account) {
+                    case 'cash':
+                        totals.cash += transaction.amount;
+                        break;
+                    case 'accountsReceivable':
+                        totals.accountsReceivable += transaction.amount;
+                        break;
+                    case 'inventory':
+                        totals.inventory += transaction.amount;
+                        break;
+                    case 'accountsPayable':
+                        totals.accountsPayable += transaction.amount;
+                        break;
+                    case 'loans':
+                        totals.loans += transaction.amount;
+                        break;
+                    case 'ownerEquity':
+                        totals.ownerEquity += transaction.amount;
+                        break;
+                    case 'sales':
+                    case 'serviceRevenue':
+                        totals.revenues += transaction.amount;
+                        break;
+                    case 'salaryExpense':
+                    case 'rentExpense':
+                        totals.expenses += transaction.amount;
+                        break;
                 }
             });
 
-            const difference = totalDebits - totalCredits;
+            return totals;
+        };
 
-            document.getElementById('summaryTotalDebits').textContent = totalDebits.toFixed(2);
-            document.getElementById('summaryTotalCredits').textContent = totalCredits.toFixed(2);
-            document.getElementById('summaryDifference').textContent = difference.toFixed(2);
-        }
+        const generateReports = () => {
+            const totals = calculateTotals();
+
+            document.getElementById('reportTotalRevenues').textContent = totals.revenues;
+            document.getElementById('reportTotalExpenses').textContent = totals.expenses;
+            document.getElementById('reportNetIncome').textContent = totals.revenues - totals.expenses;
+
+            document.getElementById('balanceSheetCash').textContent = totals.cash;
+            document.getElementById('balanceSheetAccountsReceivable').textContent = totals.accountsReceivable;
+            document.getElementById('balanceSheetInventory').textContent = totals.inventory;
+            document.getElementById('balanceSheetAccountsPayable').textContent = totals.accountsPayable;
+            document.getElementById('balanceSheetLoans').textContent = totals.loans;
+            document.getElementById('balanceSheetOwnerEquity').textContent = totals.ownerEquity;
+
+            document.getElementById('summaryTotalDebits').textContent = totals.totalDebits;
+            document.getElementById('summaryTotalCredits').textContent = totals.totalCredits;
+            document.getElementById('summaryDifference').textContent = totals.totalDebits - totals.totalCredits;
+        };
     </script>
 </body>
+
 </html>
