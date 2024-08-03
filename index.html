@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Accounting Software</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
 
         body {
@@ -109,6 +111,7 @@
 
         table td:last-child {
             text-align: center;
+            width: 40px;
         }
 
         .delete-icon {
@@ -279,18 +282,40 @@
         const transactionForm = document.getElementById('transactionForm');
         const transactionsTable = document.getElementById('transactionsTable').querySelector('tbody');
 
-        let users = [];
-        let transactions = [];
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+        const saveUsers = () => localStorage.setItem('users', JSON.stringify(users));
+        const saveTransactions = () => localStorage.setItem('transactions', JSON.stringify(transactions));
 
         const addUser = (username, password) => {
             users.push({ username, password });
+            saveUsers();
             console.log("User added:", username);
         };
 
         const authenticateUser = (username, password) => {
-            const isAuthenticated = users.some(user => user.username === username && user.password === password);
-            console.log("Authentication attempt for", username, isAuthenticated ? "successful" : "failed");
-            return isAuthenticated;
+            const user = users.find(user => user.username === username && user.password === password);
+            console.log("Authentication attempt for", username, user ? "successful" : "failed");
+            return user;
+        };
+
+        const showTransactions = () => {
+            transactionsTable.innerHTML = '';
+            transactions.forEach((transaction, index) => addTransactionToTable(transaction, index));
+        };
+
+        const handleLogin = (username, password) => {
+            const user = authenticateUser(username, password);
+            if (user) {
+                console.log("Login successful");
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+                showTransactions();
+            } else {
+                console.log("Invalid login credentials");
+                alert('Invalid login credentials.');
+            }
         };
 
         loginForm.addEventListener('submit', (e) => {
@@ -298,14 +323,7 @@
             const username = loginForm.username.value;
             const password = loginForm.password.value;
 
-            if (authenticateUser(username, password)) {
-                console.log("Login successful");
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-            } else {
-                console.log("Invalid login credentials");
-                alert('Invalid login credentials.');
-            }
+            handleLogin(username, password);
         });
 
         registerForm.addEventListener('submit', (e) => {
@@ -336,11 +354,12 @@
             };
 
             transactions.push(transaction);
-            addTransactionToTable(transaction);
+            saveTransactions();
+            addTransactionToTable(transaction, transactions.length - 1);
             transactionForm.reset();
         });
 
-        const addTransactionToTable = (transaction) => {
+        const addTransactionToTable = (transaction, index) => {
             const row = document.createElement('tr');
 
             row.innerHTML = `
@@ -349,7 +368,7 @@
                 <td>${transaction.type}</td>
                 <td>${transaction.account}</td>
                 <td>${transaction.correspondingAccount || ''}</td>
-                <td><span class="delete-icon" onclick="deleteTransaction(${transactions.length - 1})">&times;</span></td>
+                <td><span class="delete-icon" onclick="deleteTransaction(${index})">&#128465;</span></td>
             `;
 
             transactionsTable.appendChild(row);
@@ -357,12 +376,8 @@
 
         const deleteTransaction = (index) => {
             transactions.splice(index, 1);
-            renderTransactionsTable();
-        };
-
-        const renderTransactionsTable = () => {
-            transactionsTable.innerHTML = '';
-            transactions.forEach((transaction, index) => addTransactionToTable(transaction));
+            saveTransactions();
+            showTransactions();
         };
 
         const calculateTotals = () => {
