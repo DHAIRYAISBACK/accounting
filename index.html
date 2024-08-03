@@ -258,14 +258,12 @@
                         <td id="balanceSheetLoans">0</td>
                     </tr>
                     <tr>
-                        <td>Owner's Equity</td>
+                        <td>Owner Equity</td>
                         <td id="balanceSheetOwnerEquity">0</td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <div class="summary">
-            <h3>Summary</h3>
+            <h3>Transaction Summary</h3>
             <p>Total Debits: <span id="summaryTotalDebits">0</span></p>
             <p>Total Credits: <span id="summaryTotalCredits">0</span></p>
             <p>Difference: <span id="summaryDifference">0</span></p>
@@ -273,8 +271,6 @@
     </div>
 
     <script>
-        console.log("Script loaded successfully");
-
         const authContainer = document.getElementById('authContainer');
         const appContainer = document.getElementById('appContainer');
         const loginForm = document.getElementById('loginForm');
@@ -282,22 +278,23 @@
         const transactionForm = document.getElementById('transactionForm');
         const transactionsTable = document.getElementById('transactionsTable').querySelector('tbody');
 
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        const usersKey = 'users';
+        const transactionsKey = 'transactions';
+        let users = JSON.parse(localStorage.getItem(usersKey)) || [];
+        let transactions = JSON.parse(localStorage.getItem(transactionsKey)) || [];
 
-        const saveUsers = () => localStorage.setItem('users', JSON.stringify(users));
-        const saveTransactions = () => localStorage.setItem('transactions', JSON.stringify(transactions));
+        const saveToLocalStorage = () => {
+            localStorage.setItem(usersKey, JSON.stringify(users));
+            localStorage.setItem(transactionsKey, JSON.stringify(transactions));
+        };
 
         const addUser = (username, password) => {
             users.push({ username, password });
-            saveUsers();
-            console.log("User added:", username);
+            saveToLocalStorage();
         };
 
         const authenticateUser = (username, password) => {
-            const user = users.find(user => user.username === username && user.password === password);
-            console.log("Authentication attempt for", username, user ? "successful" : "failed");
-            return user;
+            return users.find(user => user.username === username && user.password === password);
         };
 
         const showTransactions = () => {
@@ -308,12 +305,10 @@
         const handleLogin = (username, password) => {
             const user = authenticateUser(username, password);
             if (user) {
-                console.log("Login successful");
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
                 showTransactions();
             } else {
-                console.log("Invalid login credentials");
                 alert('Invalid login credentials.');
             }
         };
@@ -322,7 +317,6 @@
             e.preventDefault();
             const username = loginForm.username.value;
             const password = loginForm.password.value;
-
             handleLogin(username, password);
         });
 
@@ -332,7 +326,6 @@
             const newPassword = registerForm.newPassword.value;
 
             addUser(newUsername, newPassword);
-            console.log("Registration successful for:", newUsername);
             alert('Registration successful. You can now login.');
             registerForm.reset();
         });
@@ -354,7 +347,7 @@
             };
 
             transactions.push(transaction);
-            saveTransactions();
+            saveToLocalStorage();
             addTransactionToTable(transaction, transactions.length - 1);
             transactionForm.reset();
         });
@@ -376,7 +369,7 @@
 
         const deleteTransaction = (index) => {
             transactions.splice(index, 1);
-            saveTransactions();
+            saveToLocalStorage();
             showTransactions();
         };
 
@@ -453,9 +446,7 @@
             document.getElementById('summaryDifference').textContent = totals.totalDebits - totals.totalCredits;
         };
 
-        console.log("Script executed successfully");
         authContainer.style.display = 'block'; // Ensure the auth container is visible initially
-        console.log("Auth container visibility set to block");
     </script>
 </body>
 
