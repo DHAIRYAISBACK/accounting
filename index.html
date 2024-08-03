@@ -22,20 +22,19 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
         .container {
-            width: 90%;
+            width: 100%;
             max-width: 800px;
-            margin: 20px auto;
             padding: 20px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1,
-        h2 {
+        h1, h2 {
             color: #333;
             margin-bottom: 20px;
             text-align: center;
@@ -118,6 +117,21 @@
             cursor: pointer;
             color: red;
             font-size: 20px;
+        }
+
+        @media (max-width: 600px) {
+            input, select, button {
+                font-size: 14px;
+            }
+
+            table th, table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .container {
+                padding: 10px;
+            }
         }
 
         #authContainer,
